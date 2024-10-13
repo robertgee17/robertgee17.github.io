@@ -1,22 +1,82 @@
 <ul class="card-text font-weight-light list-group list-group-flush">
-  {% assign work = data[1] | sort: 'startDate' | reverse %}
+  {% assign work = data[1] %}
+  
   {% for content in work %}
+    <!-- Handle empty or null endDate -->
+    {% if content.endDate == '' or content.endDate == null %}
+      {% assign content.endDate = 'Present' %}
+    {% endif %}
+  
+    <!-- Handle empty or null startDate -->
+    {% if content.startDate == '' or content.startDate == null %}
+      {% assign content.startDate = '9999-12-31' %}
+    {% endif %}
+  
+    <!-- Assign year and month parts for startDate -->
+    {% assign startDateParts = content.startDate | split: '-' %}
+    {% assign startYear = startDateParts[0] %}
+    {% assign startMonthNumber = startDateParts[1] %}
+
+    <!-- Assign year and month parts for endDate -->
+    {% if content.endDate != 'Present' %}
+      {% assign endDateParts = content.endDate | split: '-' %}
+      {% assign endYear = endDateParts[0] %}
+      {% assign endMonthNumber = endDateParts[1] %}
+    {% endif %}
+    
+    <!-- Convert start month number to short month name -->
+    {% case startMonthNumber %}
+      {% when '01' %} {% assign startMonthName = 'Jan' %}
+      {% when '02' %} {% assign startMonthName = 'Feb' %}
+      {% when '03' %} {% assign startMonthName = 'Mar' %}
+      {% when '04' %} {% assign startMonthName = 'Apr' %}
+      {% when '05' %} {% assign startMonthName = 'May' %}
+      {% when '06' %} {% assign startMonthName = 'Jun' %}
+      {% when '07' %} {% assign startMonthName = 'Jul' %}
+      {% when '08' %} {% assign startMonthName = 'Aug' %}
+      {% when '09' %} {% assign startMonthName = 'Sep' %}
+      {% when '10' %} {% assign startMonthName = 'Oct' %}
+      {% when '11' %} {% assign startMonthName = 'Nov' %}
+      {% when '12' %} {% assign startMonthName = 'Dec' %}
+    {% endcase %}
+    
+    <!-- Convert end month number to short month name (if applicable) -->
+    {% if content.endDate != 'Present' %}
+      {% case endMonthNumber %}
+        {% when '01' %} {% assign endMonthName = 'Jan' %}
+        {% when '02' %} {% assign endMonthName = 'Feb' %}
+        {% when '03' %} {% assign endMonthName = 'Mar' %}
+        {% when '04' %} {% assign endMonthName = 'Apr' %}
+        {% when '05' %} {% assign endMonthName = 'May' %}
+        {% when '06' %} {% assign endMonthName = 'Jun' %}
+        {% when '07' %} {% assign endMonthName = 'Jul' %}
+        {% when '08' %} {% assign endMonthName = 'Aug' %}
+        {% when '09' %} {% assign endMonthName = 'Sep' %}
+        {% when '10' %} {% assign endMonthName = 'Oct' %}
+        {% when '11' %} {% assign endMonthName = 'Nov' %}
+        {% when '12' %} {% assign endMonthName = 'Dec' %}
+      {% endcase %}
+    {% endif %}
+    
+    <!-- Format dates -->
+    {% assign startDateFormatted = startMonthName | append: ' ' | append: startYear %}
+    {% if content.endDate == '' %}
+      {% assign endDateFormatted = 'Present' %}
+    {% else %}
+      {% assign endDateFormatted = endMonthName | append: ' ' | append: endYear %}
+    {% endif %}
+    
+    <!-- Output the date range -->
+    {% assign dateFormatted = startDateFormatted | append: ' - ' | append: endDateFormatted %}
+    
     <li class="list-group-item">
       <div class="row">
         <div class="col-xs-2 cl-sm-2 col-md-2 text-center date-column">
-          {% if content.startDate %}
-            {% assign startDate = content.startDate | split: '-' | slice: 0, 2 | join: '.' %}
-            {% assign endDate = content.endDate | split: '-' | slice: 0, 2 | join: '.' | default: 'Present' %}
-            {% assign date = startDate | append: ' - ' %}
-            {% assign date = date | append: endDate %}
-          {% else %}
-            {% assign date = '' %}
-          {% endif %}
           <table class="table-cv">
             <tbody>
               <tr>
                 <td>
-                  <span class="badge font-weight-bold danger-color-dark text-uppercase align-middle" style="min-width: 75px"> {{ date }} </span>
+                  <span class="badge font-weight-bold danger-color-dark text-uppercase align-middle" style="min-width: 75px"> {{ dateFormatted }} </span>
                 </td>
               </tr>
               {% if content.location %}
